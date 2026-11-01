@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expense Tracker · Spendwise</title>
+<meta name="description" content="Spendwise: a smart expense tracker with natural-language entry, an AI assistant, budgets, goals and a financial health score.">
+<meta name="theme-color" content="#06070e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='.6' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M18 42l10-12 8 7 10-13' stroke='white' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{var t=localStorage.getItem("theme")||"dark";document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-7 4 4 6-8"/></svg></div>
+      <div><b>Spendwise</b><small>Expense Tracker</small></div>
+    </div>
+    <div class="nav-label">Workspace</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-spacer"></div>
+    <div class="side-card"><b><span class="live" id="aiDot"></span><span id="aiTitle">Smart insights</span></b><span id="aiText">Rule-based analysis is active.</span></div>
+    <button class="kbd-hint" data-act="palette"><span>Command menu</span><kbd>Ctrl K</kbd></button>
+  </aside>
+
+  <div class="content">
+    <header class="top">
+      <div><h1 id="pageTitle">Overview</h1><p id="pageSub"></p></div>
+      <div class="top-actions">
+        <button class="search-btn" data-act="palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Search or jump to…<kbd>Ctrl K</kbd></button>
+        <div class="monthbox">
+          <button data-act="prev" aria-label="Previous month">&#8249;</button>
+          <select id="monthSel" aria-label="Month"></select>
+          <button data-act="next" aria-label="Next month">&#8250;</button>
+        </div>
+        <button class="btn ghost icon" data-act="theme" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"></button>
+        <button class="btn" data-act="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="txt-hide">Add expense</span> <kbd>N</kbd></button>
+      </div>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+<nav class="bottom" id="bottomNav"></nav>
+
+<!-- add / edit expense -->
+<dialog id="modal">
+  <div class="mhead"><h3 id="mTitle">Add expense</h3><button class="ib" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="mbody">
+    <div><label for="fAmount">Amount</label><div class="amount-wrap"><span>&#8377;</span><input id="fAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0"></div></div>
+    <div><label for="fDesc">Description</label><input id="fDesc" placeholder="e.g. Lunch at canteen, Uber to office" autocomplete="off"><div class="suggest" id="suggest"></div></div>
+    <div class="two">
+      <div><label for="fCat">Category</label><input id="fCat" list="catList" placeholder="Auto-suggested" autocomplete="off"><datalist id="catList"></datalist></div>
+      <div><label for="fDate">Date</label><input id="fDate" type="date"></div>
+    </div>
+    <div class="err" id="fErr"></div>
+    <div class="mfoot"><button class="btn ghost" data-act="close">Cancel</button><button class="btn" data-act="save" id="saveBtn">Save expense</button></div>
+  </div>
+</dialog>
+
+<!-- new goal -->
+<dialog id="goalModal">
+  <div class="mhead"><h3>New savings goal</h3><button class="ib" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="mbody">
+    <div><label>Pick an icon</label><div class="emoji-row" id="emojiRow"></div></div>
+    <div><label for="gName">Goal name</label><input id="gName" placeholder="e.g. Goa trip, New laptop" autocomplete="off"></div>
+    <div class="two"><div><label for="gTarget">Target (₹)</label><input id="gTarget" type="number" min="1" placeholder="50000"></div><div><label for="gSaved">Already saved (₹)</label><input id="gSaved" type="number" min="0" placeholder="0"></div></div>
+    <div><label for="gDeadline">Deadline (optional)</label><input id="gDeadline" type="date"></div>
+    <div class="err" id="gErr"></div>
+    <div class="mfoot"><button class="btn ghost" data-act="close">Cancel</button><button class="btn" data-act="saveGoal">Create goal</button></div>
+  </div>
+</dialog>
+
+<!-- add funds -->
+<dialog id="fundModal">
+  <div class="mhead"><h3 id="fTitle">Add funds</h3><button class="ib" data-act="close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="mbody">
+    <div><label for="fundAmt">Amount (use a minus sign to withdraw)</label><div class="amount-wrap"><span>&#8377;</span><input id="fundAmt" type="number" step="any" placeholder="1000"></div></div>
+    <div class="err" id="fundErr"></div>
+    <div class="mfoot"><button class="btn ghost" data-act="close">Cancel</button><button class="btn" data-act="saveFund">Save</button></div>
+  </div>
+</dialog>
+
+<!-- command palette -->
+<dialog id="palette">
+  <div class="pal-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="palInput" placeholder="Type a command, or an expense like “450 uber yesterday”…" autocomplete="off"></div>
+  <div class="pal-list" id="palList"></div>
+  <div class="pal-foot"><span><kbd style="background:var(--track);color:var(--muted)">↑↓</kbd> navigate</span><span><kbd style="background:var(--track);color:var(--muted)">↵</kbd> select</span><span><kbd style="background:var(--track);color:var(--muted)">esc</kbd> close</span></div>
+</dialog>
+
+<div id="toast"></div>
+<div class="tooltip" id="tip"></div>
+<canvas id="confetti"></canvas>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
